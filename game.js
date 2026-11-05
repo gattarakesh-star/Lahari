@@ -8,7 +8,7 @@
   const GAMEOVER2_SRC = 'assets/gameover2.mp3';     // NEW: second game over sound
   const GAMEOVER2_DELAY_MS = 800;                   // wait before the 2nd sound (0 = together)
   const VIEW_H = 540;         // smaller = more zoomed in, bigger = more zoomed out
-  const PLAYER_HEIGHT = 68;   // drawn size of your pic
+  const PLAYER_HEIGHT = 100;   // drawn size of your pic
   const GRAVITY = 1400;       // higher = falls faster
   const FLAP = -400;          // jump strength
   const SPEED = 160;          // bone speed
@@ -289,30 +289,89 @@ player.x = Math.round(W * 0.27);
   }
 
   // dir = -1: bone hangs from the top; dir = +1: bone rises from the bottom
-  function drawBone(cx, endY, dir) {
-    const kr = 12, kx = 8;
-    const knobY = endY - dir * 8;
-    const farY = dir === -1 ? -60 : H;
-    const y1 = Math.min(knobY, farY), y2 = Math.max(knobY, farY);
+ function drawBooks(cx, endY, dir) {
+  const colors = [
+    '#e74c3c',
+    '#3498db',
+    '#f1c40f',
+    '#27ae60',
+    '#9b59b6',
+    '#e67e22'
+  ];
+
+  const farY = dir === -1 ? -80 : H + 80;
+
+  let y = farY;
+  let index = 0;
+
+  while (
+    dir === -1 ? y < endY : y > endY
+  ) {
+    const height = 48 + (index % 2) * 8;
+    const width = 48 + (index % 3) * 6;
+    const offset = (index % 2 === 0) ? -5 : 5;
+
+    const bookY = dir === -1 ? y : y - height;
+
+    ctx.save();
+
+    // Book cover
+    ctx.fillStyle = colors[index % colors.length];
+    ctx.strokeStyle = '#493323';
+    ctx.lineWidth = 3;
+
     ctx.beginPath();
-    ctx.rect(cx - 12, y1, 24, y2 - y1);
-    ctx.moveTo(cx - kx + kr, knobY);
-    ctx.arc(cx - kx, knobY, kr, 0, Math.PI * 2);
-    ctx.moveTo(cx + kx + kr, knobY);
-    ctx.arc(cx + kx, knobY, kr, 0, Math.PI * 2);
-    ctx.lineJoin = 'round';
-    ctx.lineWidth = 5;
-    ctx.strokeStyle = '#8a7a58';
-    ctx.stroke();
-    ctx.fillStyle = '#f7f1df';
+    ctx.roundRect(
+      cx - width / 2 + offset,
+      bookY,
+      width,
+      height,
+      4
+    );
     ctx.fill();
+    ctx.stroke();
+
+    // Pages
+    ctx.fillStyle = '#fff0cc';
+    ctx.fillRect(
+      cx - width / 2 + offset + 5,
+      bookY + 5,
+      width - 10,
+      height - 10
+    );
+
+    // Book spine
+    ctx.fillStyle = colors[index % colors.length];
+    ctx.fillRect(
+      cx - width / 2 + offset,
+      bookY,
+      8,
+      height
+    );
+
+    // Decorative lines
+    ctx.strokeStyle = 'rgba(70,40,20,0.4)';
+    ctx.lineWidth = 1;
+
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.moveTo(cx - 12 + offset, bookY + 15 + i * 7);
+      ctx.lineTo(cx + 13 + offset, bookY + 15 + i * 7);
+      ctx.stroke();
+    }
+
+    ctx.restore();
+
+    y += dir === -1 ? height - 3 : -(height - 3);
+    index++;
   }
+ }
 
   function drawBones() {
-    for (const b of bones) {
-      drawBone(b.x, b.gapY, -1);
-      drawBone(b.x, b.gapY + GAP, +1);
-    }
+  for (const b of bones) {
+    drawBooks(b.x, b.gapY, -1);
+    drawBooks(b.x, b.gapY + GAP, +1);
+  }
   }
 
   function drawPlayer() {
