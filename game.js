@@ -290,81 +290,63 @@ player.x = Math.round(W * 0.27);
 
   // dir = -1: bone hangs from the top; dir = +1: bone rises from the bottom
  function drawBooks(cx, endY, dir) {
-  const colors = [
-    '#e74c3c',
-    '#3498db',
-    '#f1c40f',
-    '#27ae60',
-    '#9b59b6',
-    '#e67e22'
-  ];
+const colors = [
+'#c0392b',
+'#2471a3',
+'#d4ac0d',
+'#239b56',
+'#884ea0',
+'#d35400'
+];
 
-  const farY = dir === -1 ? -80 : H + 80;
+const farY = dir === -1 ? -80 : H + 80;
+let y = farY;
+let index = 0;
 
-  let y = farY;
-  let index = 0;
+while (dir === -1 ? y < endY : y > endY) {
+const height = 22 + (index % 3) * 4;
+const width = 55 + (index % 2) * 10;
+const offset = (index % 2 === 0) ? -5 : 5;
 
-  while (
-    dir === -1 ? y < endY : y > endY
-  ) {
-    const height = 48 + (index % 2) * 8;
-    const width = 48 + (index % 3) * 6;
-    const offset = (index % 2 === 0) ? -5 : 5;
+const bookY = dir === -1 ? y : y - height;
+const x = cx - width / 2 + offset;
 
-    const bookY = dir === -1 ? y : y - height;
+ctx.save();
 
-    ctx.save();
+// Book pages (visible side)
+ctx.fillStyle = '#f5e6c8';
+ctx.fillRect(x, bookY, width, height);
 
-    // Book cover
-    ctx.fillStyle = colors[index % colors.length];
-    ctx.strokeStyle = '#493323';
-    ctx.lineWidth = 3;
+// Page lines
+ctx.strokeStyle = '#c9b99b';
+ctx.lineWidth = 1;
 
-    ctx.beginPath();
-    ctx.roundRect(
-      cx - width / 2 + offset,
-      bookY,
-      width,
-      height,
-      4
-    );
-    ctx.fill();
-    ctx.stroke();
+for (let i = 4; i < height; i += 5) {
+  ctx.beginPath();
+  ctx.moveTo(x + 8, bookY + i);
+  ctx.lineTo(x + width - 4, bookY + i);
+  ctx.stroke();
+}
 
-    // Pages
-    ctx.fillStyle = '#fff0cc';
-    ctx.fillRect(
-      cx - width / 2 + offset + 5,
-      bookY + 5,
-      width - 10,
-      height - 10
-    );
+// Coloured book cover
+ctx.fillStyle = colors[index % colors.length];
+ctx.fillRect(x - 3, bookY, width + 6, 5);
+ctx.fillRect(x - 3, bookY + height - 5, width + 6, 5);
 
-    // Book spine
-    ctx.fillStyle = colors[index % colors.length];
-    ctx.fillRect(
-      cx - width / 2 + offset,
-      bookY,
-      8,
-      height
-    );
+// Spine
+ctx.fillRect(x - 3, bookY, 6, height);
 
-    // Decorative lines
-    ctx.strokeStyle = 'rgba(70,40,20,0.4)';
-    ctx.lineWidth = 1;
+// Outline
+ctx.strokeStyle = '#493323';
+ctx.lineWidth = 2;
+ctx.strokeRect(x - 3, bookY, width + 6, height);
 
-    for (let i = 0; i < 3; i++) {
-      ctx.beginPath();
-      ctx.moveTo(cx - 12 + offset, bookY + 15 + i * 7);
-      ctx.lineTo(cx + 13 + offset, bookY + 15 + i * 7);
-      ctx.stroke();
-    }
+ctx.restore();
 
-    ctx.restore();
+y += dir === -1 ? height - 2 : -(height - 2);
+index++;
 
-    y += dir === -1 ? height - 3 : -(height - 3);
-    index++;
-  }
+}
  }
 
   function drawBones() {
